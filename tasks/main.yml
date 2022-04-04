@@ -27,4 +27,5 @@
 - name: "Install package"
   ansible.builtin.package:
     name: "/root/software/{{ package_name.split('_')[0] }}/{{ package_name }}"
+    use: "yum"
     state: present
