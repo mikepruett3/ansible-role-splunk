@@ -15,7 +15,7 @@ Available variables are listed below, along with default values (see ```defaults
 
 ``` yaml
 software_url: "http://www.example.org"
-package_name: "redcloak-1.2.15.0_x86_64.rpm"
+package_name: "splunkforwarder_8.2.1_x86_64.rpm"
 ```
 
 ```software_url``` **(Required)** The URL that hosts the Installer package. This should be either **http** or **https**.
