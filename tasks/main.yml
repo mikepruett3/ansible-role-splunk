@@ -28,4 +28,4 @@
   ansible.builtin.package:
     name: "/root/software/{{ package_name.split('.')[0] }}/{{ package_name }}"
     state: present
-  when: '"splunk" not in ansible_facts.packages'
+  #when: '"splunk" not in ansible_facts.packages'
