@@ -25,7 +25,6 @@
   when: package.stat.exists != True
 
 - name: "Install package"
-  ansible.builtin.package:
+  ansible.builtin.yum:
     name: "/root/software/{{ package_name.split('_')[0] }}/{{ package_name }}"
-    use: "yum"
     state: present
