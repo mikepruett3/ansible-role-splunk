@@ -2,4 +2,4 @@
 # defaults file for ansible-role-splunk
 
 software_url: "http://www.example.org"
-#package_name: "splunkforwarder_8.2.3_x86_64.rpm"
+package_name: "splunkforwarder_8.2.1_x86_64.rpm"
