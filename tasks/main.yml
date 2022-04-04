@@ -1,2 +1,31 @@
 ---
 # tasks file for ansible-role-splunk
+
+- name: "Gather the package facts"
+  ansible.builtin.package_facts:
+    manager: auto
+  when: ansible_facts.packages is not defined
+
+- name: "Create software directory under root homedir, if it does not exist"
+  ansible.builtin.file:
+    path: "/root/software/{{ package_name.split('.')[0] }}/"
+    state: directory
+  
+- name: "Check if installer package already exist"
+  ansible.builtin.stat:
+    path: "/root/software/{{ package_name.split('.')[0] }}/{{ package_name }}"
+  register: package
+
+- name: "Download installer package from local repository"
+  ansible.builtin.get_url:
+    url: "{{ software_url }}/{{ package_name }}"
+    dest: "/root/software/{{ package_name.split('.')[0] }}/"
+    validate_certs: no
+    mode: 0777
+  when: package.stat.exists != True
+
+- name: "Install package"
+  ansible.builtin.package:
+    name: "/root/software/{{ package_name.split('.')[0] }}/{{ package_name }}"
+    state: present
+  when: '"splunk" not in ansible_facts.packages'
