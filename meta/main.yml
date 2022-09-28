@@ -10,8 +10,12 @@
        versions:
        - "7"
        - "8"
+     - name: Debian
+     - name: Ubuntu
     galaxy_tags:
       - splunk
       - forwarder
       - logging
+      - agent
+      - security
       - system

@@ -8,24 +8,45 @@
 
 - name: "Create software directory under root homedir, if it does not exist"
   ansible.builtin.file:
-    path: "/root/software/{{ package_name.split('_')[0] }}/"
+    path: "/root/software/splunk/"
     state: directory
-  
+
 - name: "Check if installer package already exist"
   ansible.builtin.stat:
-    path: "/root/software/{{ package_name.split('_')[0] }}/{{ package_name }}"
+    path: "/root/software/splunk/{{ package_name }}"
   register: package
 
 - name: "Download installer package from local repository"
   ansible.builtin.get_url:
     url: "{{ software_url }}/{{ package_name }}"
-    dest: "/root/software/{{ package_name.split('_')[0] }}/"
+    dest: "/root/software/splunk/"
     validate_certs: no
     mode: 0777
   when: package.stat.exists != True
 
-- name: "Install package"
+- name: "Install package (RHEL - yum)"
   ansible.builtin.yum:
-    name: "/root/software/{{ package_name.split('_')[0] }}/{{ package_name }}"
+    name: "/root/software/splunk/{{ package_name }}"
     state: present
-  when: '"splunkforwarder" not in ansible_facts.packages'
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_facts['distribution_major_version'] <= '7'
+    - '"splunkforwarder" not in ansible_facts.packages'
+
+- name: "Install package (RHEL - dnf)"
+  ansible.builtin.dnf:
+    name: "/root/software/splunk/{{ package_name }}"
+    state: present
+    disable_gpg_check: yes
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_facts['distribution_major_version'] >= '8'
+    - '"splunkforwarder" not in ansible_facts.packages'
+
+- name: "Install package (Debian)"
+  ansible.builtin.apt:
+    deb: "/root/software/splunk/{{ package_name }}"
+    state: present
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - '"splunkforwarder" not in ansible_facts.packages'
