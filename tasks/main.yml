@@ -1,6 +1,14 @@
 ---
 # tasks file for ansible-role-splunk
 
+- name: "Test Access to Proxy Server"
+  ansible.builtin.uri:
+    url: "{{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}"
+    method: GET
+    validate_certs: no
+    status_code: [200, 400]
+  when: proxy = True
+
 - name: "Gather the package facts"
   ansible.builtin.package_facts:
     manager: auto
@@ -50,3 +58,35 @@
   when:
     - ansible_facts['os_family'] == 'Debian'
     - '"splunkforwarder" not in ansible_facts.packages'
+
+- name: "Test for existence /opt/splunkforwarder/etc/system/local/deploymentclient.conf"
+  ansible.builtin.stat:
+    path: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
+  register: file_exists
+
+- name: "Update deploymentclient.conf to point to local Heavy Forwarder Server"
+  ansible.builtin.lineinfile:
+    path: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
+    regexp: "^targetUri ="
+    line: "targetUri = {{ heavy_forwarder_host }}:{{ heavy_forwarder_port }}"
+    state: present
+  when: file_exists.stat is defined and file_exists.stat.exists
+
+- name: "Test for existence /opt/splunkforwarder/etc/system/local/server.conf"
+  ansible.builtin.stat:
+    path: /opt/splunkforwarder/etc/system/local/server.conf
+  register: file_exists
+  when: proxy = True
+
+- name: "Update server.conf to point to Proxy Server"
+  ansible.builtin.blockinfile:
+    path: /opt/splunkforwarder/etc/system/local/server.conf
+    insertafter: "^pass4SymmKey ="
+    state: present
+    block: |
+
+      [proxyConfig]
+      http_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
+      https_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
+
+  when: file_exists.stat is defined and file_exists.stat.exists and proxy = True
