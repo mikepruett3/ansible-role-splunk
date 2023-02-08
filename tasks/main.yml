@@ -95,10 +95,10 @@
       USERNAME={{ splunk_account }}
       PASSWORD={{ splunk_password }}
 
-#- name: "Start the Splunk Universal Forwarder Service"
-#  ansible.builtin.command: ./splunk start --no-prompt --accept-license --answer-yes
-#  args:
-#    chdir: "/opt/splunkforwarder/bin/"
+- name: "Start the Splunk Universal Forwarder Service"
+  ansible.builtin.command: ./splunk start --no-prompt --accept-license --answer-yes
+  args:
+    chdir: "/opt/splunkforwarder/bin/"
 
 #- name: "Test for existence /opt/splunkforwarder/etc/system/local/server.conf"
 #  ansible.builtin.stat:
