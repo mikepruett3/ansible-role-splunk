@@ -11,3 +11,6 @@ package_name: "splunkforwarder_8.2.1_x86_64.rpm"
 
 heavy_forwarder_host: "forwarder.example.org"
 heavy_forwarder_port: "8089"
+
+splunk_account: "myuser"
+splunk_password: "mypass"
