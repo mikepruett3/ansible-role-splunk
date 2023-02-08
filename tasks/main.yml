@@ -82,7 +82,7 @@
 - name: "Create deploymentclient.conf file"
   ansible.builtin.copy:
     dest: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
-    state: present
+    #state: present
     content: |
       [target-broker:deploymentServer]
       targetUri = {{ heavy_forwarder_host }}:{{ heavy_forwarder_port }}"
