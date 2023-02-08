@@ -9,6 +9,21 @@
     status_code: [200, 400]
   when: proxy != False
 
+- name: "Test Access to Heavy Forwarder Server"
+  ansible.builtin.uri:
+    url: "https://{{ heavy_forwarder_host }}:{{ heavy_forwarder_port }}"
+    method: GET
+    validate_certs: no
+    status_code: [200, 400]
+  when: proxy != False
+
+- name: "Create Splunk service account"
+  ansible.builtin.user:
+    name: "{{ splunk_account }}"
+    comment: "Splunk Server"
+    password: "{{ splunk_password }}"
+    shell: /bin/bash
+
 - name: "Gather the package facts"
   ansible.builtin.package_facts:
     manager: auto
@@ -59,34 +74,49 @@
     - ansible_facts['os_family'] == 'Debian'
     - '"splunkforwarder" not in ansible_facts.packages'
 
-- name: "Test for existence /opt/splunkforwarder/etc/system/local/deploymentclient.conf"
+- name: "Test for existence deploymentclient.conf file"
   ansible.builtin.stat:
     path: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
   register: file_exists
 
-- name: "Update deploymentclient.conf to point to local Heavy Forwarder Server"
-  ansible.builtin.lineinfile:
-    path: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
-    regexp: "^targetUri ="
-    line: "targetUri = {{ heavy_forwarder_host }}:{{ heavy_forwarder_port }}"
+- name: "Create deploymentclient.conf file"
+  ansible.builtin.copy:
+    dest: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
+    content: |
+      [target-broker:deploymentServer]
+      targetUri = {{ heavy_forwarder_host }}:{{ heavy_forwarder_port }}"
     state: present
-  when: file_exists.stat is defined and file_exists.stat.exists
+  when: file_exists.stat is defined and file_exists.stat.exists == False
 
-- name: "Test for existence /opt/splunkforwarder/etc/system/local/server.conf"
-  ansible.builtin.stat:
-    path: /opt/splunkforwarder/etc/system/local/server.conf
-  register: file_exists
-  when: proxy != False
-
-- name: "Update server.conf to point to Proxy Server"
-  ansible.builtin.blockinfile:
-    path: /opt/splunkforwarder/etc/system/local/server.conf
-    insertafter: "^pass4SymmKey ="
+- name: "Create user-seed.conf file"
+  ansible.builtin.copy:
+    dest: /opt/splunkforwarder/etc/system/local/user-seed.conf
+    content: |
+      [user_info]
+      USERNAME={{ splunk_account }}
+      PASSWORD={{ splunk_password }}
     state: present
-    block: |
 
-      [proxyConfig]
-      http_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
-      https_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
+#- name: "Start the Splunk Universal Forwarder Service"
+#  ansible.builtin.command: ./splunk start --no-prompt --accept-license --answer-yes
+#  args:
+#    chdir: "/opt/splunkforwarder/bin/"
 
-  when: file_exists.stat is defined and file_exists.stat.exists and proxy != False
+#- name: "Test for existence /opt/splunkforwarder/etc/system/local/server.conf"
+#  ansible.builtin.stat:
+#    path: /opt/splunkforwarder/etc/system/local/server.conf
+#  register: file_exists
+#  when: proxy != False
+
+#- name: "Update server.conf to point to Proxy Server"
+#  ansible.builtin.blockinfile:
+#    path: /opt/splunkforwarder/etc/system/local/server.conf
+#    insertafter: "^pass4SymmKey ="
+#    state: present
+#    block: |
+#
+#      [proxyConfig]
+#      http_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
+#      https_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
+#
+#  when: file_exists.stat is defined and file_exists.stat.exists and proxy != False
