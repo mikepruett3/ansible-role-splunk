@@ -82,10 +82,9 @@
 - name: "Create deploymentclient.conf file"
   ansible.builtin.copy:
     dest: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
-    #state: present
     content: |
       [target-broker:deploymentServer]
-      targetUri = {{ heavy_forwarder_host }}:{{ heavy_forwarder_port }}"
+      targetUri = {{ heavy_forwarder_host }}:{{ heavy_forwarder_port }}
   when: file_exists.stat is defined and file_exists.stat.exists == False
 
 - name: "Create user-seed.conf file"
@@ -95,7 +94,6 @@
       [user_info]
       USERNAME={{ splunk_account }}
       PASSWORD={{ splunk_password }}
-    state: present
 
 #- name: "Start the Splunk Universal Forwarder Service"
 #  ansible.builtin.command: ./splunk start --no-prompt --accept-license --answer-yes
