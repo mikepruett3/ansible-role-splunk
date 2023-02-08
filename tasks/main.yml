@@ -128,3 +128,8 @@
       https_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
 
   when: file_exists.stat is defined and file_exists.stat.exists and proxy != False
+
+- name: "Start the Splunk Universal Forwarder Service"
+  ansible.builtin.command: ./splunk start --no-prompt --accept-license --answer-yes
+  args:
+    chdir: "/opt/splunkforwarder/bin/"
