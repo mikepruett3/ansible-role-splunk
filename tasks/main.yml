@@ -7,7 +7,7 @@
     method: GET
     validate_certs: no
     status_code: [200, 400]
-  when: proxy = True
+  when: proxy != False
 
 - name: "Gather the package facts"
   ansible.builtin.package_facts:
@@ -76,7 +76,7 @@
   ansible.builtin.stat:
     path: /opt/splunkforwarder/etc/system/local/server.conf
   register: file_exists
-  when: proxy = True
+  when: proxy != False
 
 - name: "Update server.conf to point to Proxy Server"
   ansible.builtin.blockinfile:
@@ -89,4 +89,4 @@
       http_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
       https_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
 
-  when: file_exists.stat is defined and file_exists.stat.exists and proxy = True
+  when: file_exists.stat is defined and file_exists.stat.exists and proxy != False
