@@ -129,12 +129,22 @@
 
   when: file_exists.stat is defined and file_exists.stat.exists and proxy != False
 
+- name: "Change folder permissions of Splunk Universal Forwarder directory"
+  ansible.builtin.command: find . -type d -exec chown {{ splunk_account }}:{{ splunk_account }} {} \;
+  args:
+    chdir: "/opt/splunkforwarder/"
+
+- name: "Change file permissions of Splunk Universal Forwarder directory"
+  ansible.builtin.command: find . -type f -exec chown {{ splunk_account }}:{{ splunk_account }} {} \;
+  args:
+    chdir: "/opt/splunkforwarder/"
+
 - name: "Start the Splunk Universal Forwarder Service"
   ansible.builtin.command: ./splunk start --no-prompt --accept-license --answer-yes
   args:
     chdir: "/opt/splunkforwarder/bin/"
 
 - name: "Enable the Splunk Universal Forwarder Service at boot"
-  ansible.builtin.command: ./splunk enable boot-start -systemd-managed 0
+  ansible.builtin.command: ./splunk enable boot-start -systemd-managed 1
   args:
     chdir: "/opt/splunkforwarder/bin/"
