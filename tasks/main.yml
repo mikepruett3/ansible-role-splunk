@@ -110,14 +110,14 @@
   args:
     chdir: "/opt/splunkforwarder/bin/"
 
+- name: "Change folder owner of Splunk Universal Forwarder directory"
+  ansible.builtin.command: chown -R {{ splunk_account }}:{{ splunk_account }} /opt/splunkforwarder/
+
 - name: "Test for existence server.conf"
   ansible.builtin.stat:
     path: /opt/splunkforwarder/etc/system/local/server.conf
   register: file_exists
   when: proxy != False
-
-- name: "Change folder owner of Splunk Universal Forwarder directory"
-  ansible.builtin.command: chown -R {{ splunk_account }}:{{ splunk_account }} /opt/splunkforwarder/
 
 - name: "Update server.conf to point to Proxy Server"
   ansible.builtin.blockinfile:
