@@ -100,9 +100,9 @@
   args:
     chdir: "/opt/splunkforwarder/bin/"
 
-- name: "Wait 30 seconds"
+- name: "Wait 10 seconds"
   ansible.builtin.wait_for:
-    timeout: 30
+    timeout: 10
   delegate_to: localhost
 
 - name: "Stop the Splunk Universal Forwarder Service"
@@ -116,6 +116,9 @@
   register: file_exists
   when: proxy != False
 
+- name: "Change folder owner of Splunk Universal Forwarder directory"
+  ansible.builtin.command: chown -R {{ splunk_account }}:{{ splunk_account }} /opt/splunkforwarder/
+
 - name: "Update server.conf to point to Proxy Server"
   ansible.builtin.blockinfile:
     path: /opt/splunkforwarder/etc/system/local/server.conf
@@ -128,16 +131,6 @@
       https_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
 
   when: file_exists.stat is defined and file_exists.stat.exists and proxy != False
-
-#- name: "Change folder permissions of Splunk Universal Forwarder directory"
-#  ansible.builtin.command: find . -type d -exec chown {{ splunk_account }}:{{ splunk_account }} {} \;
-#  args:
-#    chdir: "/opt/splunkforwarder/"
-
-#- name: "Change file permissions of Splunk Universal Forwarder directory"
-#  ansible.builtin.command: find . -type f -exec chown {{ splunk_account }}:{{ splunk_account }} {} \;
-#  args:
-#    chdir: "/opt/splunkforwarder/"
 
 - name: "Enable the Splunk Universal Forwarder Service at boot"
   ansible.builtin.command: ./splunk enable boot-start -systemd-managed 1
