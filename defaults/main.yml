@@ -13,4 +13,6 @@ heavy_forwarder_host: "forwarder.example.org"
 heavy_forwarder_port: "8089"
 
 splunk_account: "myuser"
+splunk_group: "myuser"
 splunk_password: "mypass"
+splunk_service: "SplunkForwarder"

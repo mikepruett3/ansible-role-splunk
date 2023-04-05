@@ -17,12 +17,19 @@
     status_code: [200, 400]
   when: proxy != False
 
+- name: "Create Splunk group"
+  ansible.builtin.group:
+    name: "{{ splunk_group }}"
+    state: present
+
 - name: "Create Splunk service account"
   ansible.builtin.user:
     name: "{{ splunk_account }}"
     comment: "Splunk Server"
     password: "{{ splunk_password }}"
     shell: /bin/bash
+    group: "{{ splunk_group }}"
+    state: present
 
 - name: "Gather the package facts"
   ansible.builtin.package_facts:
@@ -74,31 +81,50 @@
     - ansible_facts['os_family'] == 'Debian'
     - '"splunkforwarder" not in ansible_facts.packages'
 
-- name: "Test for existence deploymentclient.conf file"
-  ansible.builtin.stat:
-    path: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
-  register: file_exists
+- name: "Add SPLUNK_HOME to default user profile"
+  ansible.builtin.template:
+    src: splunk.j2
+    dest: /etc/profile.d/splunk.sh
+    owner: root
+    group: root
+    mode: '0644'
+
+#- name: "Test for existence deploymentclient.conf file"
+#  ansible.builtin.stat:
+#    path: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
+#  register: file_exists
 
 - name: "Create deploymentclient.conf file"
   ansible.builtin.copy:
     dest: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
+    owner: "{{ splunk_account }}"
+    group: "{{ splunk_group }}"
+    mode: '0640'
     content: |
       [target-broker:deploymentServer]
       targetUri = {{ heavy_forwarder_host }}:{{ heavy_forwarder_port }}
-  when: file_exists.stat is defined and file_exists.stat.exists == False
+  #when: file_exists.stat is defined and file_exists.stat.exists == False
 
 - name: "Create user-seed.conf file"
   ansible.builtin.copy:
     dest: /opt/splunkforwarder/etc/system/local/user-seed.conf
+    owner: "{{ splunk_account }}"
+    group: "{{ splunk_group }}"
+    mode: '0640'
     content: |
       [user_info]
       USERNAME={{ splunk_account }}
       PASSWORD={{ splunk_password }}
 
-- name: "Start the Splunk Universal Forwarder Service"
-  ansible.builtin.command: ./splunk start --no-prompt --accept-license --answer-yes
+- name: "Enable the Splunk Universal Forwarder Service at boot"
+  ansible.builtin.command: ./splunk enable boot-start -systemd-managed 1 --no-prompt --accept-license --answer-yes
   args:
     chdir: "/opt/splunkforwarder/bin/"
+
+- name: "Start the Splunk Universal Forwarder Service"
+  ansible.builtin.service:
+    name: "{{ splunk_service }}"
+    state: started
 
 - name: "Wait 10 seconds"
   ansible.builtin.wait_for:
@@ -106,12 +132,9 @@
   delegate_to: localhost
 
 - name: "Stop the Splunk Universal Forwarder Service"
-  ansible.builtin.command: ./splunk stop
-  args:
-    chdir: "/opt/splunkforwarder/bin/"
-
-- name: "Change folder owner of Splunk Universal Forwarder directory"
-  ansible.builtin.command: chown -R {{ splunk_account }}:{{ splunk_account }} /opt/splunkforwarder/
+  ansible.builtin.service:
+    name: "{{ splunk_service }}"
+    state: stopped
 
 - name: "Test for existence server.conf"
   ansible.builtin.stat:
@@ -132,14 +155,7 @@
 
   when: file_exists.stat is defined and file_exists.stat.exists and proxy != False
 
-- name: "Enable the Splunk Universal Forwarder Service at boot"
-  ansible.builtin.command: ./splunk enable boot-start -systemd-managed 1
-  args:
-    chdir: "/opt/splunkforwarder/bin/"
-
 - name: "Start the Splunk Universal Forwarder Service"
-  ansible.builtin.command: ./splunk start --no-prompt --accept-license --answer-yes
-  args:
-    chdir: "/opt/splunkforwarder/bin/"
-
-
+  ansible.builtin.service:
+    name: "{{ splunk_service }}"
+    state: started
