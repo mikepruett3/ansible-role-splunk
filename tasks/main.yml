@@ -15,7 +15,6 @@
     method: GET
     validate_certs: no
     status_code: [200, 400]
-  when: proxy != False
 
 - name: "Create Splunk group"
   ansible.builtin.group:
@@ -122,7 +121,7 @@
     chdir: "/opt/splunkforwarder/bin/"
 
 - name: "Start the Splunk Universal Forwarder Service"
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: "{{ splunk_service }}"
     state: started
 
@@ -132,7 +131,7 @@
   delegate_to: localhost
 
 - name: "Stop the Splunk Universal Forwarder Service"
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: "{{ splunk_service }}"
     state: stopped
 
@@ -156,6 +155,6 @@
   when: file_exists.stat is defined and file_exists.stat.exists and proxy != False
 
 - name: "Start the Splunk Universal Forwarder Service"
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: "{{ splunk_service }}"
     state: started
