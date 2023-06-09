@@ -131,7 +131,7 @@
     path: /opt/splunkforwarder/etc/system/local/server.conf
   register: file_exists
   when:
-    - not proxy | bool
+    - proxy | bool
 
 - name: "Update server.conf to point to Proxy Server"
   ansible.builtin.blockinfile:
@@ -147,7 +147,7 @@
   when:
     - file_exists.stat is defined
     - file_exists.stat.exists
-    - not proxy | bool
+    - proxy | bool
 
 - name: "Start the Splunk Universal Forwarder Service"
   ansible.builtin.systemd:
