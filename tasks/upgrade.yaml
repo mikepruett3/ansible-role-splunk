@@ -6,6 +6,6 @@
     splunk_home: "{{ ansible_facts.env.SPLUNK_HOME }}"
   when:
     - ansible_facts.env.SPLUNK_HOME is defined
-    - ansible_facts.env.SPLUNK_HOME exists
+    #- ansible_facts.env.SPLUNK_HOME exists
 
 #- name: "Get Facts about existing installation"
