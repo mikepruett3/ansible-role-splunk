@@ -132,8 +132,8 @@
     block: |
 
       [proxyConfig]
-      http_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
-      https_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
+      http_proxy = {{ proxy_protocol }}://{{ proxy_host }}
+      https_proxy = {{ proxy_protocol }}://{{ proxy_host }}
 
   when:
     - file_exists.stat is defined

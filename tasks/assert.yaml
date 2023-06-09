@@ -19,8 +19,6 @@
       - proxy is boolean
       - proxy_host is defined
       - proxy_host is string
-      - proxy_port is defined
-      - proxy_port is string
       - proxy_protocol is defined
       - proxy_protocol is string
     quiet: yes
@@ -30,10 +28,8 @@
 - name: "Test if Heavy Forwarder settings are set correctly"
   ansible.builtin.assert:
     that:
-      - heavy_forwarder_host is defined
-      - heavy_forwarder_host is string
-      - heavy_forwarder_port is defined
-      - heavy_forwarder_port is string
+      - heavy_forwarder is defined
+      - heavy_forwarder is string
     quiet: yes
 
 - name: "Test if Daemon settings are set correctly"

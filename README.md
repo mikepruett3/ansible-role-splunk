@@ -15,16 +15,14 @@ Available variables are listed below, along with default values (see ```defaults
 
 ``` yaml
 proxy: False
-proxy_host: "myproxyserver.example.com"
-proxy_port: "3128"
+proxy_host: "myproxyserver.example.com:3128"
 proxy_protocol: "http"
 
 software_url: "http://www.example.org"
 package_name: "splunkforwarder_8.2.1_x86_64.rpm"
 package_version: "8.2.1"
 
-heavy_forwarder_host: "forwarder.example.org"
-heavy_forwarder_port: "8089"
+heavy_forwarder: "forwarder.example.org:8089"
 
 splunk_account: "myuser"
 splunk_group: "myuser"
@@ -34,7 +32,7 @@ splunk_service: "SplunkForwarder.service"
 
 ```proxy``` **(Required)** Controls if the client install will be used with a HTTP/HTTPS Proxy Server. This should be either **True** or **False** (Default is **False**).
 
-```proxy_host, proxy_port, proxy_protocol``` **(Optional)** Settings only required when ```proxy``` is set to **True**.
+```proxy_host, proxy_protocol``` **(Optional)** Settings only required when ```proxy``` is set to **True**.
 
 ```software_url``` **(Required)** The URL that hosts the Installer package. This should be either **http** or **https**.
 
@@ -42,9 +40,8 @@ splunk_service: "SplunkForwarder.service"
 
 ```package_version``` **(Required)** The version of the Installer package. Used in determination if Upgrading existing install.
 
-```heavy_forwarder_host``` **(Required)** The Hostname for the specific Heavy Forwarder to communicate with.
+```heavy_forwarder``` **(Required)** The Hostname & Port for the specific Heavy Forwarder to communicate with.
 
-```heavy_forwarder_port``` **(Required)** The Port for the specific Heavy Forwarder to communicate with.
 
 ```splunk_account, splunk_group``` **(Required)** User & Group names to be used/created for the client to run as. (Default is **splunk** for both)
 
