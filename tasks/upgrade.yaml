@@ -3,9 +3,9 @@
 
 - name: "Check for SPLUNK_HOME Environment Variable"
   ansible.builtin.set_fact:
-    splunk_home: "{{ ansible_facts.env.SPLUNK_HOME }}"
+    splunk_home: "{{ ansible_facts.ansible_env.SPLUNK_HOME }}"
   when:
-    - ansible_facts.env.SPLUNK_HOME is defined
+    - ansible_facts.ansible_env.SPLUNK_HOME is defined
     #- ansible_facts.env.SPLUNK_HOME exists
 
 #- name: "Get Facts about existing installation"
