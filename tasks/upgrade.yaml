@@ -1,6 +1,9 @@
 ---
 # Upgrade tasks file for ansible-role-splunk
 
+- name: "Gather Facts"
+  ansible.builtin.gather_facts:
+
 - name: "Check for SPLUNK_HOME Environment Variable"
   #ansible.builtin.set_fact:
   #  splunk_home: ansible_facts["env"].SPLUNK_HOME
