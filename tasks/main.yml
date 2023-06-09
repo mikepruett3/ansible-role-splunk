@@ -3,7 +3,7 @@
 
 - name: "Test Access to Proxy Server"
   ansible.builtin.uri:
-    url: "{{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}"
+    url: "{{ proxy_protocol }}://{{ proxy_host }}"
     method: GET
     validate_certs: no
     status_code: [200, 400]
@@ -11,7 +11,7 @@
 
 - name: "Test Access to Heavy Forwarder Server"
   ansible.builtin.uri:
-    url: "https://{{ heavy_forwarder_host }}:{{ heavy_forwarder_port }}"
+    url: "https://{{ heavy_forwarder }}"
     method: GET
     validate_certs: no
     status_code: [200, 400]
