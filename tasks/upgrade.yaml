@@ -19,14 +19,12 @@
   register: result
   ignore_errors: true
 
-- debug:
-    var: result
-
 - name: "Set Facts for Install variable"
   ansible.builtin.set_fact:
     install: true
   when:
     - splunk_home is not defined
+    - result.failed is true
 
 - name: "Get the version of installed Universal Forwarder Client"
   ansible.builtin.shell:
