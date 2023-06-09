@@ -9,6 +9,6 @@
     #- ansible_facts["env"].SPLUNK_HOME
     #- ansible_facts.env.SPLUNK_HOME exists
   debug:
-    var: ansible_facts["env"].SPLUNK_HOME
+    var: ansible_facts.env.SPLUNK_HOME
 
 #- name: "Get Facts about existing installation"
