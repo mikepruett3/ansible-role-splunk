@@ -17,6 +17,10 @@
   ansible.builtin.stat:
     path: "{{ splunk_home }}/bin/splunk"
   register: result
+  ignore_errors: true
+
+- debug:
+    var: result
 
 - name: "Set Facts for Install variable"
   ansible.builtin.set_fact:
