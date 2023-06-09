@@ -12,7 +12,17 @@
     splunk_home: "{{ result.stdout | split('=') | last }}"
   when:
     - result.failed is false
-    #- ansible_facts["env"].SPLUNK_HOME
-    #- ansible_facts.env.SPLUNK_HOME exists
 
-#- name: "Get Facts about existing installation"
+- name: "Get the version of installed Universal Forwarder Client"
+  ansible.builtin.shell:
+    cmd: ./splunk version | tail -n 1 | awk '{ print $4 }'
+    chdir: "{{ splunk_home }}/bin"
+  register: result
+  when:
+    - splunk_home is defined
+
+- name: "Set Facts for installed Universal Forwarder Client version"
+  ansible.builtin.set_fact:
+    splunk_version: "{{ result.stdout }}"
+  when:
+    - result.failed is false
