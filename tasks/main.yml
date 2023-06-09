@@ -16,145 +16,19 @@
     validate_certs: no
     status_code: [200, 400]
 
-- name: "Create Splunk group"
-  ansible.builtin.group:
-    name: "{{ splunk_group }}"
-    state: present
+#- name: "Gather the package facts"
+#  ansible.builtin.package_facts:
+#    manager: auto
+#  when:
+#    - ansible_facts['packages'] is not defined
 
-- name: "Create Splunk service account"
-  ansible.builtin.user:
-    name: "{{ splunk_account }}"
-    comment: "Splunk Server"
-    password: "{{ splunk_password }}"
-    shell: /bin/bash
-    group: "{{ splunk_group }}"
-    state: present
+- name: "Include tasks from assert playbook"
+  ansible.builtin.include_tasks: assert.yaml
 
-- name: "Gather the package facts"
-  ansible.builtin.package_facts:
-    manager: auto
-  when: ansible_facts.packages is not defined
+- name: "Include tasks from lookup playbook"
+  ansible.builtin.include_tasks: lookup.yaml
 
-- name: "Create software directory under root homedir, if it does not exist"
-  ansible.builtin.file:
-    path: "/root/software/splunk/"
-    state: directory
-
-- name: "Check if installer package already exist"
-  ansible.builtin.stat:
-    path: "/root/software/splunk/{{ package_name }}"
-  register: package
-
-- name: "Download installer package from local repository"
-  ansible.builtin.get_url:
-    url: "{{ software_url }}/{{ package_name }}"
-    dest: "/root/software/splunk/"
-    validate_certs: no
-    mode: 0777
-  when: package.stat.exists != True
-
-- name: "Install package (RHEL - yum)"
-  ansible.builtin.yum:
-    name: "/root/software/splunk/{{ package_name }}"
-    state: present
-  when:
-    - ansible_facts['os_family'] == 'RedHat'
-    - ansible_facts['distribution_major_version'] <= '7'
-    - '"splunkforwarder" not in ansible_facts.packages'
-
-- name: "Install package (RHEL - dnf)"
-  ansible.builtin.dnf:
-    name: "/root/software/splunk/{{ package_name }}"
-    state: present
-    disable_gpg_check: yes
-  when:
-    - ansible_facts['os_family'] == 'RedHat'
-    - ansible_facts['distribution_major_version'] >= '8'
-    - '"splunkforwarder" not in ansible_facts.packages'
-
-- name: "Install package (Debian)"
-  ansible.builtin.apt:
-    deb: "/root/software/splunk/{{ package_name }}"
-    state: present
-  when:
-    - ansible_facts['os_family'] == 'Debian'
-    - '"splunkforwarder" not in ansible_facts.packages'
-
-- name: "Add SPLUNK_HOME to default user profile"
-  ansible.builtin.template:
-    src: splunk.j2
-    dest: /etc/profile.d/splunk.sh
-    owner: root
-    group: root
-    mode: '0644'
-
-#- name: "Test for existence deploymentclient.conf file"
-#  ansible.builtin.stat:
-#    path: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
-#  register: file_exists
-
-- name: "Create deploymentclient.conf file"
-  ansible.builtin.copy:
-    dest: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
-    owner: "{{ splunk_account }}"
-    group: "{{ splunk_group }}"
-    mode: '0640'
-    content: |
-      [target-broker:deploymentServer]
-      targetUri = {{ heavy_forwarder_host }}:{{ heavy_forwarder_port }}
-  #when: file_exists.stat is defined and file_exists.stat.exists == False
-
-- name: "Create user-seed.conf file"
-  ansible.builtin.copy:
-    dest: /opt/splunkforwarder/etc/system/local/user-seed.conf
-    owner: "{{ splunk_account }}"
-    group: "{{ splunk_group }}"
-    mode: '0640'
-    content: |
-      [user_info]
-      USERNAME={{ splunk_account }}
-      PASSWORD={{ splunk_password }}
-
-- name: "Enable the Splunk Universal Forwarder Service at boot"
-  ansible.builtin.command: ./splunk enable boot-start -systemd-managed 1 --no-prompt --accept-license --answer-yes
-  args:
-    chdir: "/opt/splunkforwarder/bin/"
-
-- name: "Start the Splunk Universal Forwarder Service"
-  ansible.builtin.systemd:
-    name: "{{ splunk_service }}"
-    state: started
-
-- name: "Wait 10 seconds"
-  ansible.builtin.wait_for:
-    timeout: 10
-  delegate_to: localhost
-
-- name: "Stop the Splunk Universal Forwarder Service"
-  ansible.builtin.systemd:
-    name: "{{ splunk_service }}"
-    state: stopped
-
-- name: "Test for existence server.conf"
-  ansible.builtin.stat:
-    path: /opt/splunkforwarder/etc/system/local/server.conf
-  register: file_exists
-  when: proxy != False
-
-- name: "Update server.conf to point to Proxy Server"
-  ansible.builtin.blockinfile:
-    path: /opt/splunkforwarder/etc/system/local/server.conf
-    insertafter: "^pass4SymmKey ="
-    state: present
-    block: |
-
-      [proxyConfig]
-      http_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
-      https_proxy = {{ proxy_protocol }}://{{ proxy_host }}:{{ proxy_port }}
-
-  when: file_exists.stat is defined and file_exists.stat.exists and proxy != False
-
-- name: "Start the Splunk Universal Forwarder Service"
-  ansible.builtin.systemd:
-    name: "{{ splunk_service }}"
-    state: started
+#- name: "Include tasks from Debian playbook"
+#  ansible.builtin.include_tasks: Debian.yaml
+#  when:
+#    - ansible_facts['os_family'] == 'Debian'
