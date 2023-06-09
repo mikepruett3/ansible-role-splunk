@@ -37,7 +37,7 @@
     url: "{{ software_url }}/{{ package_name }}"
     dest: "/root/software/splunk/"
     validate_certs: no
-    mode: 0777
+    mode: '0770'
   when:
     - not package.stat.exists | bool
     #- package.stat.exists != True
