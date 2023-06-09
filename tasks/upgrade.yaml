@@ -17,7 +17,7 @@
   ansible.builtin.set_fact:
     install: true
   when:
-    - - splunk_home is not defined
+    - splunk_home is not defined
 
 - name: "Get the version of installed Universal Forwarder Client"
   ansible.builtin.shell:
