@@ -10,8 +10,8 @@
 - name: "Set Facts for SPLUNK_HOME Environment Variable"
   ansible.builtin.set_fact:
     splunk_home: "{{ result.stdout | split('=') | last }}"
-  #when:
-    #- ansible_facts.ansible_env.SPLUNK_HOME is defined
+  when:
+    - result.failed is false
     #- ansible_facts["env"].SPLUNK_HOME
     #- ansible_facts.env.SPLUNK_HOME exists
 
