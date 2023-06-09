@@ -9,7 +9,7 @@
     #- ansible_facts.ansible_env.SPLUNK_HOME is defined
     #- ansible_facts["env"].SPLUNK_HOME
     #- ansible_facts.env.SPLUNK_HOME exists
-  debug:
-    var: ansible_env.SPLUNK_HOME
+  ansible.builtin.debug:
+    msg: "'{{ lookup('ansible.builtin.env', 'SPLUNK_HOME') }}'"
 
 #- name: "Get Facts about existing installation"
