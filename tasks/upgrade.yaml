@@ -5,6 +5,7 @@
   ansible.builtin.shell:
     cmd: . /etc/profile && (env | grep -iP "SPLUNK_HOME")
   register: result
+  ignore_errors: true
 
 - name: "debug"
   debug:
