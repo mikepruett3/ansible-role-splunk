@@ -28,13 +28,13 @@
 - name: "Include tasks from lookup playbook"
   ansible.builtin.include_tasks: lookup.yaml
 
-- name: "Include tasks from install playbook"
-  ansible.builtin.include_tasks: install.yaml
+- name: "Include tasks from installation playbook"
+  ansible.builtin.include_tasks: installation.yaml
   when:
     - install | bool
 
-- name: "Include tasks from upgrade playbook"
-  ansible.builtin.include_tasks: upgrade.yaml
+- name: "Include tasks from upgrading playbook"
+  ansible.builtin.include_tasks: upgrading.yaml
   when:
     - upgrade | bool
 
