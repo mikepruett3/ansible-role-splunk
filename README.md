@@ -21,6 +21,7 @@ proxy_protocol: "http"
 
 software_url: "http://www.example.org"
 package_name: "splunkforwarder_8.2.1_x86_64.rpm"
+package_version: "8.2.1"
 
 heavy_forwarder_host: "forwarder.example.org"
 heavy_forwarder_port: "8089"
@@ -38,6 +39,8 @@ splunk_service: "SplunkForwarder.service"
 ```software_url``` **(Required)** The URL that hosts the Installer package. This should be either **http** or **https**.
 
 ```package_name``` **(Required)** The Installer package name.
+
+```package_version``` **(Required)** The version of the Installer package. Used in determination if Upgrading existing install.
 
 ```heavy_forwarder_host``` **(Required)** The Hostname for the specific Heavy Forwarder to communicate with.
 
