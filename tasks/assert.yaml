@@ -1,0 +1,50 @@
+---
+# Assert tasks file for ansible-role-splunk
+
+- name: "Test if Software URL and Package Information is set correctly"
+  ansible.builtin.assert:
+    that:
+      - software_url is defined
+      - software_url is string
+      - package_name is defined
+      - package_name is string
+      - package_version is defined
+      - package_version is string
+    quiet: yes
+
+- name: "Test if proxy settings are set correctly"
+  ansible.builtin.assert:
+    that:
+      - proxy is defined
+      - proxy is boolean
+      - proxy_host is defined
+      - proxy_host is string
+      - proxy_port is defined
+      - proxy_port is string
+      - proxy_protocol is defined
+      - proxy_protocol is string
+    quiet: yes
+  when:
+    - proxy is defined
+
+- name: "Test if Heavy Forwarder settings are set correctly"
+  ansible.builtin.assert:
+    that:
+      - heavy_forwarder_host is defined
+      - heavy_forwarder_host is string
+      - heavy_forwarder_port is defined
+      - heavy_forwarder_port is string
+    quiet: yes
+
+- name: "Test if Daemon settings are set correctly"
+  ansible.builtin.assert:
+    that:
+      - splunk_account is defined
+      - splunk_account is string
+      - splunk_group is defined
+      - splunk_group is string
+      - splunk_password is defined
+      - splunk_password is string
+      - splunk_service is defined
+      - splunk_service is string
+    quiet: yes

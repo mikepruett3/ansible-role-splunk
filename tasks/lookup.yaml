@@ -1,0 +1,49 @@
+---
+# Lookup tasks file for ansible-role-splunk
+
+- name: "Check for SPLUNK_HOME Environment Variable"
+  ansible.builtin.shell:
+    cmd: . /etc/profile && (env | grep -iP "SPLUNK_HOME")
+  register: result
+  ignore_errors: true
+
+- name: "Set Facts for SPLUNK_HOME Environment Variable"
+  ansible.builtin.set_fact:
+    splunk_home: "{{ result.stdout | split('=') | last }}"
+  when:
+    - result.failed is false
+
+- name: "Check for splunk executable"
+  ansible.builtin.stat:
+    path: "{{ splunk_home }}/bin/splunk"
+  register: result
+  ignore_errors: true
+
+- name: "Set Facts for Install variable"
+  ansible.builtin.set_fact:
+    install: true
+  when:
+    - splunk_home is not defined
+    - result.failed is true
+
+- name: "Get the version of installed Universal Forwarder Client"
+  ansible.builtin.shell:
+    cmd: ./splunk version | tail -n 1 | awk '{ print $4 }'
+    chdir: "{{ splunk_home }}/bin"
+  register: result
+  when:
+    - splunk_home is defined
+
+- name: "Set Facts for installed Universal Forwarder Client version"
+  ansible.builtin.set_fact:
+    splunk_version: "{{ result.stdout }}"
+  when:
+    - result.failed is false
+
+- name: "Set Facts for Upgrade variable"
+  ansible.builtin.set_fact:
+    upgrade: true
+  when:
+    - splunk_version != package_version
+    - splunk_version is defined
+    #- splunk_version != '7'
