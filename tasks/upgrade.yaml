@@ -3,7 +3,12 @@
 
 - name: "Check for SPLUNK_HOME Environment Variable"
   ansible.builtin.shell:
-    cmd: . /etc/profile && (env | grep -iP "SPLUNK_HOME" | awk 'OFS="|" { print $2 }')
+    cmd: . /etc/profile && (env | grep -iP "SPLUNK_HOME")
+  register: result
+
+- name: "debug"
+  debug:
+    var: result
   #when:
     #- ansible_facts.ansible_env.SPLUNK_HOME is defined
     #- ansible_facts["env"].SPLUNK_HOME
