@@ -32,4 +32,3 @@
     path: "{{ splunk_home }}/etc/system/default/"
     dest: /tmp/splunk-default-config-backup.zip
     format: zip
-  creates: /tmp/splunk-default-config-backup.zip
