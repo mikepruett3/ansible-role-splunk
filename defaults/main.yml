@@ -1,7 +1,7 @@
 ---
 # defaults file for ansible-role-splunk
 
-proxy: False
+proxy: false
 proxy_host: "myproxyserver.example.com"
 proxy_port: "3128"
 proxy_protocol: "http"

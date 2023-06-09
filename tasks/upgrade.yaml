@@ -1,7 +1,7 @@
 ---
 # Upgrade tasks file for ansible-role-splunk
 
-- name: "Test if upgrade variable is set correctly"
+- name: "Test if upgrade boolean variable is set correctly"
   ansible.builtin.assert:
     that:
       - upgrade is defined
