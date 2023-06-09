@@ -1,5 +1,6 @@
 ---
 # Upgrade tasks file for ansible-role-splunk
+
 - name: "Test if upgrade boolean variable is set correctly"
   ansible.builtin.assert:
     that:
@@ -37,3 +38,48 @@
     path: "{{ splunk_home }}/etc/system/local/"
     dest: /tmp/splunk-local-config-backup.zip
     format: zip
+
+- name: "Stop the Splunk Universal Forwarder Service"
+  ansible.builtin.systemd:
+    name: "{{ splunk_service }}"
+    state: stopped
+
+- name: "Install package (RHEL - yum)"
+  ansible.builtin.yum:
+    name: "/root/software/splunk/{{ package_name }}"
+    state: present
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_facts['distribution_major_version'] <= '7'
+
+- name: "Install package (RHEL - dnf)"
+  ansible.builtin.dnf:
+    name: "/root/software/splunk/{{ package_name }}"
+    state: present
+    disable_gpg_check: yes
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_facts['distribution_major_version'] >= '8'
+
+- name: "Install package (Debian)"
+  ansible.builtin.apt:
+    deb: "/root/software/splunk/{{ package_name }}"
+    state: present
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+
+- name: "Upgrade the Splunk Universal Forwarder Service"
+  ansible.builtin.shell:
+    cmd: ./splunk start --accept-license --answer-yes --no-prompt
+    chdir: "{{ splunk_home }}/bin"
+
+- name: "Wait 10 seconds"
+  ansible.builtin.wait_for:
+    timeout: 10
+  delegate_to: localhost
+
+- name: "Restart the Splunk Universal Forwarder Service"
+  ansible.builtin.systemd:
+    name: "{{ splunk_service }}"
+    state: restarted
+    daemon_reload: true

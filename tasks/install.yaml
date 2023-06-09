@@ -106,15 +106,15 @@
       USERNAME={{ splunk_account }}
       PASSWORD={{ splunk_password }}
 
-- name: "Enable the Splunk Universal Forwarder Service at boot"
-  ansible.builtin.command: ./splunk enable boot-start -systemd-managed 1 --no-prompt --accept-license --answer-yes
-  args:
-    chdir: "/opt/splunkforwarder/bin/"
+- name: "Install the Splunk Universal Forwarder Service"
+  ansible.builtin.shell:
+    cmd: ./splunk start --accept-license --answer-yes --no-prompt
+    chdir: /opt/splunkforwarder/bin/
 
-- name: "Start the Splunk Universal Forwarder Service"
-  ansible.builtin.systemd:
-    name: "{{ splunk_service }}"
-    state: started
+- name: "Enable the Splunk Universal Forwarder Service at boot"
+  ansible.builtin.shell:
+    cmd: ./splunk enable boot-start -systemd-managed 1
+    chdir: /opt/splunkforwarder/bin/
 
 - name: "Wait 10 seconds"
   ansible.builtin.wait_for:
