@@ -13,13 +13,9 @@
     path: "{{ splunk_home }}/etc/system/default/"
     dest: /tmp/splunk-default-config-backup.zip
     format: zip
-  when:
-    - upgrade is true
 
 - name: "Create a zip archive of $SPLUNK_HOME/etc/system/local"
   community.general.archive:
     path: "{{ splunk_home }}/etc/system/local/"
     dest: /tmp/splunk-local-config-backup.zip
     format: zip
-  when:
-    - upgrade is true
