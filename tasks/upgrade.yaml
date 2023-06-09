@@ -13,6 +13,11 @@
   when:
     - result.failed is false
 
+- name: "Check for splunk executable"
+  ansible.builtin.stat:
+    path: "{{ splunk_home }}/bin/splunk"
+  register: result
+
 - name: "Set Facts for Install variable"
   ansible.builtin.set_fact:
     install: true
