@@ -26,3 +26,10 @@
     splunk_version: "{{ result.stdout }}"
   when:
     - result.failed is false
+
+- name: "Create a zip archive of $SPLUNK_HOME/etc/system/default"
+  community.general.archive:
+    path: "{{ splunk_home }}/etc/system/default/"
+    dest: /tmp/splunk-default-config-backup.zip
+    format: zip
+  creates: /tmp/splunk-default-config-backup.zip
