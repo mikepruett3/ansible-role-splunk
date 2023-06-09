@@ -37,8 +37,9 @@
   ansible.builtin.set_fact:
     upgrade: true
   when:
-    #- package_version != splunk_version
-    - package_version != '7'
+    #- splunk_version != package_version
+    - splunk_version is defined
+    - splunk_version != '7'
 
 - name: "Create a zip archive of $SPLUNK_HOME/etc/system/default"
   community.general.archive:
