@@ -40,7 +40,6 @@
     mode: '0770'
   when:
     - not package.stat.exists | bool
-    #- package.stat.exists != True
 
 - name: "Install package (RHEL - yum)"
   ansible.builtin.yum:
@@ -49,7 +48,6 @@
   when:
     - ansible_facts['os_family'] == 'RedHat'
     - ansible_facts['distribution_major_version'] <= '7'
-    #- '"splunkforwarder" not in ansible_facts.packages'
 
 - name: "Install package (RHEL - dnf)"
   ansible.builtin.dnf:
@@ -59,7 +57,6 @@
   when:
     - ansible_facts['os_family'] == 'RedHat'
     - ansible_facts['distribution_major_version'] >= '8'
-    #- '"splunkforwarder" not in ansible_facts.packages'
 
 - name: "Install package (Debian)"
   ansible.builtin.apt:
@@ -77,11 +74,6 @@
     group: root
     mode: '0644'
 
-#- name: "Test for existence deploymentclient.conf file"
-#  ansible.builtin.stat:
-#    path: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
-#  register: file_exists
-
 - name: "Create deploymentclient.conf file"
   ansible.builtin.copy:
     dest: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
@@ -90,10 +82,7 @@
     mode: '0640'
     content: |
       [target-broker:deploymentServer]
-      targetUri = {{ heavy_forwarder_host }}:{{ heavy_forwarder_port }}
-  #when:
-    #- file_exists.stat is defined
-    #- file_exists.stat.exists
+      targetUri = {{ heavy_forwarder }}
 
 - name: "Create user-seed.conf file"
   ansible.builtin.copy:
@@ -120,6 +109,8 @@
   ansible.builtin.wait_for:
     timeout: 10
   delegate_to: localhost
+  when:
+    - proxy | bool
 
 - name: "Stop the Splunk Universal Forwarder Service"
   ansible.builtin.systemd:
@@ -153,3 +144,5 @@
   ansible.builtin.systemd:
     name: "{{ splunk_service }}"
     state: started
+  when:
+      - proxy | bool
