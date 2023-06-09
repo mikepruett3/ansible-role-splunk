@@ -27,6 +27,12 @@
   when:
     - result.failed is false
 
+- name: "Set Facts for Upgrade variable"
+  ansible.builtin.set_fact:
+    upgrade: true
+  when:
+    - package_version != splunk_version
+
 - name: "Create a zip archive of $SPLUNK_HOME/etc/system/default"
   community.general.archive:
     path: "{{ splunk_home }}/etc/system/default/"
