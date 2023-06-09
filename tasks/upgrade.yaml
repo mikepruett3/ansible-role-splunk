@@ -1,6 +1,13 @@
 ---
 # Upgrade tasks file for ansible-role-splunk
 
+- name: "Test if upgrade variable is set correctly"
+  ansible.builtin.assert:
+    that:
+      - upgrade is defined
+      - upgrade is boolean
+    quiet: yes
+
 - name: "Create a zip archive of $SPLUNK_HOME/etc/system/default"
   community.general.archive:
     path: "{{ splunk_home }}/etc/system/default/"
