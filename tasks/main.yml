@@ -39,8 +39,3 @@
   when:
     - upgrade is defined
     - upgrade | bool
-
-#- name: "Include tasks from Debian playbook"
-#  ansible.builtin.include_tasks: Debian.yaml
-#  when:
-#    - ansible_facts['os_family'] == 'Debian'

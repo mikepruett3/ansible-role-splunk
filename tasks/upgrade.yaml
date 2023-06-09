@@ -1,12 +1,30 @@
 ---
 # Upgrade tasks file for ansible-role-splunk
-
 - name: "Test if upgrade boolean variable is set correctly"
   ansible.builtin.assert:
     that:
       - upgrade is defined
       - upgrade is boolean
     quiet: yes
+
+- name: "Create software directory under root homedir, if it does not exist"
+  ansible.builtin.file:
+    path: "/root/software/splunk/"
+    state: directory
+
+- name: "Check if installer package already exist"
+  ansible.builtin.stat:
+    path: "/root/software/splunk/{{ package_name }}"
+  register: package
+
+- name: "Download installer package from local repository"
+  ansible.builtin.get_url:
+    url: "{{ software_url }}/{{ package_name }}"
+    dest: "/root/software/splunk/"
+    validate_certs: no
+    mode: '0770'
+  when:
+    - not package.stat.exists | bool
 
 - name: "Create a zip archive of $SPLUNK_HOME/etc/system/default"
   community.general.archive:
