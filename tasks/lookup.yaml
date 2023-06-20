@@ -45,5 +45,5 @@
     upgrade: true
   when:
     - splunk_version is defined
-    - splunk_version != package_version
+    - splunk_version < package_version
     #- splunk_version != '7'
