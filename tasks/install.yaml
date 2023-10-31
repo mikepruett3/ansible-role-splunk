@@ -41,30 +41,27 @@
   when:
     - not package.stat.exists | bool
 
-- name: "Install package (RHEL - yum)"
+- name: "Install package (yum)"
   ansible.builtin.yum:
     name: "/root/software/splunk/{{ package_name }}"
     state: present
   when:
-    - ansible_facts['os_family'] == 'RedHat'
-    - ansible_facts['distribution_major_version'] <= '7'
+    - ansible_facts['pkg_mgr'] == 'yum'
 
-- name: "Install package (RHEL - dnf)"
+- name: "Install package (dnf)"
   ansible.builtin.dnf:
     name: "/root/software/splunk/{{ package_name }}"
     state: present
     disable_gpg_check: yes
   when:
-    - ansible_facts['os_family'] == 'RedHat'
-    - ansible_facts['distribution_major_version'] >= '8'
+    - ansible_facts['pkg_mgr'] == 'dnf'
 
-- name: "Install package (Debian)"
+- name: "Install package (apt)"
   ansible.builtin.apt:
     deb: "/root/software/splunk/{{ package_name }}"
     state: present
   when:
-    - ansible_facts['os_family'] == 'Debian'
-    #- '"splunkforwarder" not in ansible_facts.packages'
+    - ansible_facts['pkg_mgr'] == 'apt'
 
 - name: "Add SPLUNK_HOME to default user profile"
   ansible.builtin.template:
@@ -95,54 +92,54 @@
       USERNAME={{ splunk_account }}
       PASSWORD={{ splunk_password }}
 
-- name: "Install the Splunk Universal Forwarder Service"
-  ansible.builtin.shell:
-    cmd: ./splunk start --accept-license --answer-yes --no-prompt
-    chdir: /opt/splunkforwarder/bin/
+#- name: "Install the Splunk Universal Forwarder Service"
+#  ansible.builtin.shell:
+#    cmd: ./splunk start --accept-license --answer-yes --no-prompt
+#    chdir: /opt/splunkforwarder/bin/
 
-- name: "Stop the Splunk Universal Forwarder Service"
-  ansible.builtin.systemd:
-    name: "{{ splunk_service }}"
-    state: stopped
+#- name: "Stop the Splunk Universal Forwarder Service"
+#  ansible.builtin.systemd:
+#    name: "{{ splunk_service }}"
+#    state: stopped
 
-- name: "Wait 10 seconds"
-  ansible.builtin.wait_for:
-    timeout: 10
-  delegate_to: localhost
-  when:
-    - proxy | bool
+#- name: "Wait 10 seconds"
+#  ansible.builtin.wait_for:
+#    timeout: 10
+#  delegate_to: localhost
+#  when:
+#    - proxy | bool
 
-- name: "Enable the Splunk Universal Forwarder Service at boot"
-  ansible.builtin.shell:
-    cmd: ./splunk enable boot-start -systemd-managed 1
-    chdir: /opt/splunkforwarder/bin/
+#- name: "Enable the Splunk Universal Forwarder Service at boot"
+#  ansible.builtin.shell:
+#    cmd: ./splunk enable boot-start -systemd-managed 1
+#    chdir: /opt/splunkforwarder/bin/
 
-- name: "Test for existence server.conf"
-  ansible.builtin.stat:
-    path: /opt/splunkforwarder/etc/system/local/server.conf
-  register: file_exists
-  when:
-    - proxy | bool
+#- name: "Test for existence server.conf"
+#  ansible.builtin.stat:
+#    path: /opt/splunkforwarder/etc/system/local/server.conf
+#  register: file_exists
+#  when:
+#    - proxy | bool
 
-- name: "Update server.conf to point to Proxy Server"
-  ansible.builtin.blockinfile:
-    path: /opt/splunkforwarder/etc/system/local/server.conf
-    insertafter: "^pass4SymmKey ="
-    state: present
-    block: |
+#- name: "Update server.conf to point to Proxy Server"
+#  ansible.builtin.blockinfile:
+#    path: /opt/splunkforwarder/etc/system/local/server.conf
+#    insertafter: "^pass4SymmKey ="
+#    state: present
+#    block: |
+#
+#      [proxyConfig]
+#      http_proxy = {{ proxy_protocol }}://{{ proxy_host }}
+#      https_proxy = {{ proxy_protocol }}://{{ proxy_host }}
+#
+#  when:
+#    - file_exists.stat is defined
+#    - file_exists.stat.exists
+#    - proxy | bool
 
-      [proxyConfig]
-      http_proxy = {{ proxy_protocol }}://{{ proxy_host }}
-      https_proxy = {{ proxy_protocol }}://{{ proxy_host }}
-
-  when:
-    - file_exists.stat is defined
-    - file_exists.stat.exists
-    - proxy | bool
-
-- name: "Start the Splunk Universal Forwarder Service"
-  ansible.builtin.systemd:
-    name: "{{ splunk_service }}"
-    state: started
-  when:
-      - proxy | bool
+#- name: "Start the Splunk Universal Forwarder Service"
+#  ansible.builtin.systemd:
+#    name: "{{ splunk_service }}"
+#    state: started
+#  when:
+#      - proxy | bool
