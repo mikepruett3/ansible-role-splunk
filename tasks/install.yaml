@@ -92,15 +92,20 @@
       USERNAME={{ splunk_account }}
       PASSWORD={{ splunk_password }}
 
-#- name: "Install the Splunk Universal Forwarder Service"
-#  ansible.builtin.shell:
-#    cmd: ./splunk start --accept-license --answer-yes --no-prompt
-#    chdir: /opt/splunkforwarder/bin/
+- name: "Install the Splunk Universal Forwarder Service"
+  ansible.builtin.shell:
+    cmd: ./splunk start --accept-license --answer-yes --no-prompt
+    chdir: /opt/splunkforwarder/bin/
 
-#- name: "Stop the Splunk Universal Forwarder Service"
-#  ansible.builtin.systemd:
-#    name: "{{ splunk_service }}"
-#    state: stopped
+- name: "Wait 5 seconds"
+  ansible.builtin.wait_for:
+    timeout: 5
+  delegate_to: localhost
+
+- name: "Stop the Splunk Universal Forwarder Service"
+  ansible.builtin.shell:
+    cmd: ./splunk stop
+    chdir: /opt/splunkforwarder/bin/
 
 #- name: "Wait 10 seconds"
 #  ansible.builtin.wait_for:
@@ -109,37 +114,37 @@
 #  when:
 #    - proxy | bool
 
-#- name: "Enable the Splunk Universal Forwarder Service at boot"
-#  ansible.builtin.shell:
-#    cmd: ./splunk enable boot-start -systemd-managed 1
-#    chdir: /opt/splunkforwarder/bin/
+- name: "Enable the Splunk Universal Forwarder Service at boot"
+  ansible.builtin.shell:
+    cmd: ./splunk enable boot-start -systemd-managed 1
+    chdir: /opt/splunkforwarder/bin/
 
-#- name: "Test for existence server.conf"
-#  ansible.builtin.stat:
-#    path: /opt/splunkforwarder/etc/system/local/server.conf
-#  register: file_exists
-#  when:
-#    - proxy | bool
+- name: "Test for existence server.conf"
+  ansible.builtin.stat:
+    path: /opt/splunkforwarder/etc/system/local/server.conf
+  register: file_exists
+  when:
+    - proxy | bool
 
-#- name: "Update server.conf to point to Proxy Server"
-#  ansible.builtin.blockinfile:
-#    path: /opt/splunkforwarder/etc/system/local/server.conf
-#    insertafter: "^pass4SymmKey ="
-#    state: present
-#    block: |
-#
-#      [proxyConfig]
-#      http_proxy = {{ proxy_protocol }}://{{ proxy_host }}
-#      https_proxy = {{ proxy_protocol }}://{{ proxy_host }}
-#
-#  when:
-#    - file_exists.stat is defined
-#    - file_exists.stat.exists
-#    - proxy | bool
+- name: "Update server.conf to point to Proxy Server"
+  ansible.builtin.blockinfile:
+    path: /opt/splunkforwarder/etc/system/local/server.conf
+    insertafter: "^pass4SymmKey ="
+    state: present
+    block: |
 
-#- name: "Start the Splunk Universal Forwarder Service"
-#  ansible.builtin.systemd:
-#    name: "{{ splunk_service }}"
-#    state: started
-#  when:
-#      - proxy | bool
+      [proxyConfig]
+      http_proxy = {{ proxy_protocol }}://{{ proxy_host }}
+      https_proxy = {{ proxy_protocol }}://{{ proxy_host }}
+
+  when:
+    - file_exists.stat is defined
+    - file_exists.stat.exists
+    - proxy | bool
+
+- name: "Start the Splunk Universal Forwarder Service"
+  ansible.builtin.systemd:
+    name: "{{ splunk_service }}"
+    state: started
+  when:
+      - proxy | bool
