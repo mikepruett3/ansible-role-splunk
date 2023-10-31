@@ -100,10 +100,10 @@
     cmd: ./splunk start --accept-license --answer-yes --no-prompt
     chdir: /opt/splunkforwarder/bin/
 
-- name: "Enable the Splunk Universal Forwarder Service at boot"
-  ansible.builtin.shell:
-    cmd: ./splunk enable boot-start -systemd-managed 1
-    chdir: /opt/splunkforwarder/bin/
+- name: "Stop the Splunk Universal Forwarder Service"
+  ansible.builtin.systemd:
+    name: "{{ splunk_service }}"
+    state: stopped
 
 - name: "Wait 10 seconds"
   ansible.builtin.wait_for:
@@ -112,10 +112,10 @@
   when:
     - proxy | bool
 
-- name: "Stop the Splunk Universal Forwarder Service"
-  ansible.builtin.systemd:
-    name: "{{ splunk_service }}"
-    state: stopped
+- name: "Enable the Splunk Universal Forwarder Service at boot"
+  ansible.builtin.shell:
+    cmd: ./splunk enable boot-start -systemd-managed 1
+    chdir: /opt/splunkforwarder/bin/
 
 - name: "Test for existence server.conf"
   ansible.builtin.stat:

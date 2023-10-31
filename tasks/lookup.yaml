@@ -11,7 +11,7 @@
   ansible.builtin.set_fact:
     splunk_home: "{{ result.stdout | split('=') | last }}"
   when:
-    - result.failed is false
+    - not result.failed | bool
 
 - name: "Check for splunk executable"
   ansible.builtin.stat:
@@ -24,7 +24,7 @@
     install: true
   when:
     - splunk_home is not defined
-    - result.failed is true
+    - result.failed | bool
 
 - name: "Get the version of installed Universal Forwarder Client"
   ansible.builtin.shell:
@@ -38,7 +38,7 @@
   ansible.builtin.set_fact:
     splunk_version: "{{ result.stdout }}"
   when:
-    - result.failed is false
+    - not result.failed | bool
 
 - name: "Set Facts for Upgrade variable"
   ansible.builtin.set_fact:
