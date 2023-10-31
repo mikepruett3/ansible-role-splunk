@@ -38,6 +38,7 @@
   ansible.builtin.set_fact:
     splunk_version: "{{ result.stdout }}"
   when:
+    - splunk_home is defined
     - not result.failed | bool
 
 - name: "Set Facts for Upgrade variable"
