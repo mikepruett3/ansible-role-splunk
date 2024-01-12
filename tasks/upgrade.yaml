@@ -44,29 +44,27 @@
     name: "{{ splunk_service }}"
     state: stopped
 
-- name: "Install package (RHEL - yum)"
+- name: "Upgrade package (yum)"
   ansible.builtin.yum:
     name: "/root/software/splunk/{{ package_name }}"
     state: present
   when:
-    - ansible_facts['os_family'] == 'RedHat'
-    - ansible_facts['distribution_major_version'] <= '7'
+    - ansible_facts['pkg_mgr'] == 'yum'
 
-- name: "Install package (RHEL - dnf)"
+- name: "Upgrade package (dnf)"
   ansible.builtin.dnf:
     name: "/root/software/splunk/{{ package_name }}"
     state: present
     disable_gpg_check: yes
   when:
-    - ansible_facts['os_family'] == 'RedHat'
-    - ansible_facts['distribution_major_version'] >= '8'
+    - ansible_facts['pkg_mgr'] == 'dnf'
 
-- name: "Install package (Debian)"
+- name: "Upgrade package (apt)"
   ansible.builtin.apt:
     deb: "/root/software/splunk/{{ package_name }}"
     state: present
   when:
-    - ansible_facts['os_family'] == 'Debian'
+    - ansible_facts['pkg_mgr'] == 'apt'
 
 - name: "Upgrade the Splunk Universal Forwarder Service"
   ansible.builtin.shell:
