@@ -36,7 +36,8 @@
 
 - name: "Set Facts for installed Universal Forwarder Client version"
   ansible.builtin.set_fact:
-    splunk_version: "{{ result.stdout }}"
+    installed_version: "{{ result.stdout | replace ('-','.') }}"
+    package_version: "{{ package_version | replace ('-','.') }}"
   when:
     - splunk_home is defined
     - not result.failed | bool
@@ -45,6 +46,5 @@
   ansible.builtin.set_fact:
     upgrade: true
   when:
-    - splunk_version is defined
-    - splunk_version < package_version
-    #- splunk_version != '7'
+    - installed_version is defined
+    - package_version is ansible.builtin.version(installed_version, '>')

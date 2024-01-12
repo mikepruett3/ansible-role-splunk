@@ -16,12 +16,6 @@
     validate_certs: no
     status_code: [200, 400]
 
-#- name: "Gather the package facts"
-#  ansible.builtin.package_facts:
-#    manager: auto
-#  when:
-#    - ansible_facts['packages'] is not defined
-
 - name: "Include tasks from assert playbook"
   ansible.builtin.include_tasks: assert.yaml
 
